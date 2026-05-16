@@ -1,0 +1,56 @@
+{
+  "name": "mini-guard",
+  "version": "1.0.0",
+  "description": "Ultra-lightweight (<1KB) zero-dependency frontend RBAC with JWT support",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "build:check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "size:gz": "tsup && gzip -c dist/index.js | wc -c",
+    "format": "biome format --write",
+    "format:check": "biome format --diagnostic-level=error",
+    "lint": "biome lint",
+    "prepublishOnly": "npm run build:check && npm run format:check && npm run lint && npm run build && npm test"
+  },
+  "keywords": [
+    "rbac",
+    "jwt",
+    "authorization",
+    "permissions",
+    "roles",
+    "frontend",
+    "zero-dependency",
+    "tiny"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trung-t-nguyen/mini-guard.git"
+  },
+  "author": "Trung Nguyen",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@vitest/coverage-v8": "^1.6.0",
+    "jsdom": "^29.1.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
