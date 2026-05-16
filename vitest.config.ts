@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    env: { MINI_GUARD_DEBUG: '1' },
     environment: 'jsdom',
     globals: false,
     include: ['tests/**/*.test.ts'],

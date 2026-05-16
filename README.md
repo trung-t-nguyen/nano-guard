@@ -4,7 +4,7 @@ Ultra-lightweight (<1KB), zero-dependency, frontend-focused RBAC (Role-Based Acc
 
 [![bundle size](https://img.shields.io/badge/gzipped-~731B-brightgreen)](https://bundlephobia.com/package/mini-guard)
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
-[![github](https://img.shields.io/badge/github-nano--shield-181717?logo=github)](https://github.com/trung-t-nguyen/mini-guard)
+[![github](https://img.shields.io/badge/github-mini--guard-181717?logo=github)](https://github.com/trung-t-nguyen/mini-guard)
 
 ## Features
 
@@ -92,6 +92,7 @@ interface MiniGuardOptions {
   roleTemplate?: string;
   roleTransform?: (role: string) => string;
   strategy?: 'any' | 'all';
+  debug?: boolean;
 }
 ```
 
@@ -102,6 +103,32 @@ interface MiniGuardOptions {
 | `roleTemplate` | — | Role naming convention template — see [Multi-environment support](#multi-environment-support) |
 | `roleTransform` | — | Custom role normalizer function — overrides `roleTemplate` when both are set |
 | `strategy` | `'any'` | `'any'`: grant access if **at least one** user role is in the allowed list. `'all'`: grant only if **every** user role is in the allowed list |
+| `debug` | `false` | Emit `console.debug` logs for each key decision (`init`, `canAccess`, `clear`) |
+
+### Debug logging
+
+Enable per-instance with the `debug` option:
+
+```typescript
+const guard = new MiniGuard(featureMap, {
+  defaultModule: 'dashboard',
+  debug: import.meta.env.DEV, // Vite: enabled in dev, stripped in prod
+});
+```
+
+Each operation logs to `console.debug` with a `[MiniGuard]` prefix:
+
+```
+[MiniGuard] init: roles = [ 'admin', 'analyst' ]
+[MiniGuard] canAccess(edit:reports, dashboard): false
+[MiniGuard] clear
+```
+
+In Node / test environments you can also set the `MINI_GUARD_DEBUG` environment variable to activate logging across all instances without changing any constructor call:
+
+```bash
+MINI_GUARD_DEBUG=1 npx vitest run
+```
 
 ---
 

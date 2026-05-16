@@ -9,6 +9,7 @@ export interface MiniGuardOptions {
   roleTemplate?: string;
   roleTransform?: (role: string) => string;
   strategy?: 'any' | 'all';
+  debug?: boolean;
 }
 
 export interface JwtPayload {
