@@ -1,0 +1,186 @@
+<div class="min-h-screen bg-slate-50 text-slate-800">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center gap-3">
+    <span class="text-2xl">🛡️</span>
+    <div>
+      <h1 class="text-xl font-bold tracking-tight">mini-guard demo</h1>
+      <p class="text-xs text-slate-500">
+        Ultra-lightweight RBAC · JWT decoding · zero dependencies
+      </p>
+    </div>
+    <a
+      href="https://www.npmjs.com/package/mini-guard"
+      target="_blank"
+      rel="noreferrer"
+      class="ml-auto text-xs bg-red-600 text-white px-3 py-1 rounded-full font-medium hover:bg-red-700 transition-colors"
+    >
+      npm install mini-guard
+    </a>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-[320px_1fr] gap-6">
+    <!-- Left panel -->
+    <aside class="flex flex-col gap-4">
+      <!-- User picker -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+          1. Pick a user
+        </h2>
+        <div class="flex flex-col gap-2">
+          @for (user of presetUsers; track user.label) {
+            <button
+              (click)="loginAs(user)"
+              [class]="'flex items-center gap-3 rounded-lg border-2 px-3 py-2 text-left transition-all ' +
+                (activeLabel() === user.label
+                  ? 'border-violet-500 bg-violet-50'
+                  : 'border-transparent bg-slate-50 hover:bg-slate-100')"
+            >
+              <span
+                [class]="user.bg + ' text-white text-xs font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0'"
+              >
+                {{ user.label[0] }}
+              </span>
+              <div class="min-w-0">
+                <p class="text-sm font-medium truncate">{{ user.label }}</p>
+                <p class="text-xs text-slate-400 truncate">{{ user.description }}</p>
+              </div>
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Custom token -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <button
+          (click)="toggleCustomOpen()"
+          class="w-full flex items-center justify-between text-sm font-semibold text-slate-500 uppercase tracking-wider"
+        >
+          <span>2. Paste your JWT</span>
+          <span class="text-slate-400">{{ customOpen() ? '▲' : '▼' }}</span>
+        </button>
+        @if (customOpen()) {
+          <div class="mt-3 flex flex-col gap-2">
+            <textarea
+              [value]="customInput()"
+              (input)="onCustomInputChange($any($event.target).value)"
+              placeholder="eyJhbGciOiJIUzI1NiJ9..."
+              rows="4"
+              class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-violet-500"
+            ></textarea>
+            <button
+              (click)="loginCustom()"
+              class="bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+            >
+              Apply token
+            </button>
+          </div>
+        }
+      </section>
+
+      <!-- Current session -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+          Current session
+        </h2>
+        @if (activeLabel()) {
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">User:</span>
+              <span class="text-sm font-semibold">{{ activeLabel() }}</span>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              @if (roles().length > 0) {
+                @for (role of roles(); track role) {
+                  <span class="bg-violet-100 text-violet-800 text-xs font-mono px-2 py-0.5 rounded-full">
+                    {{ role }}
+                  </span>
+                }
+              } @else {
+                <span class="text-xs text-slate-400 italic">no roles</span>
+              }
+            </div>
+            @if (tokenPreview()) {
+              <div class="mt-1">
+                <p class="text-xs text-slate-400 mb-1">JWT (truncated)</p>
+                <p class="text-xs font-mono text-slate-600 bg-slate-50 rounded p-2 break-all line-clamp-3">
+                  {{ truncateToken(tokenPreview()!) }}
+                </p>
+              </div>
+            }
+            <button
+              (click)="logout()"
+              class="mt-1 text-xs text-red-500 hover:text-red-700 text-left transition-colors"
+            >
+              logout (guard.clear())
+            </button>
+          </div>
+        } @else {
+          <p class="text-sm text-slate-400 italic">Not logged in</p>
+        }
+      </section>
+    </aside>
+
+    <!-- Right panel — access matrix -->
+    <section class="flex flex-col gap-4">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">
+          Feature access matrix
+        </h2>
+        <p class="text-xs text-slate-400 mb-4">
+          Live result of <code class="bg-slate-100 px-1 rounded">guard.canAccess(feature, module)</code>
+        </p>
+
+        <div class="flex flex-col gap-6">
+          @for (group of moduleGroups; track group.mod) {
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-2">
+                <span class="w-px h-4 bg-slate-300 inline-block"></span>
+                {{ group.label }}
+              </h3>
+              <div class="flex flex-col gap-1.5">
+                @for (row of group.features; track row.feat) {
+                  <div
+                    [class]="'flex items-center justify-between rounded-lg px-3 py-2.5 border ' +
+                      (canAccess(row.feat, row.mod)
+                        ? 'bg-emerald-50 border-emerald-200'
+                        : 'bg-slate-50 border-slate-200')"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span
+                        [class]="'shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs ' +
+                          (canAccess(row.feat, row.mod)
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-slate-300 text-white')"
+                      >
+                        {{ canAccess(row.feat, row.mod) ? '✓' : '✕' }}
+                      </span>
+                      <code class="text-sm font-mono text-slate-700 truncate">{{ row.feat }}</code>
+                    </div>
+                    <div class="flex gap-1 flex-wrap justify-end ml-2">
+                      @for (r of row.allowedRoles; track r) {
+                        <span
+                          [class]="'text-xs font-mono px-1.5 py-0.5 rounded ' +
+                            (roles().includes(r)
+                              ? 'bg-emerald-200 text-emerald-900 font-bold'
+                              : 'bg-slate-100 text-slate-500')"
+                        >
+                          {{ r }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Code snippet -->
+      <div class="bg-slate-900 rounded-xl p-4 text-sm font-mono overflow-x-auto">
+        <p class="text-slate-400 text-xs mb-2">// How this demo is wired</p>
+        <pre class="text-slate-100 whitespace-pre text-xs leading-relaxed">{{ codeSnippet() }}</pre>
+      </div>
+    </section>
+  </main>
+</div>
