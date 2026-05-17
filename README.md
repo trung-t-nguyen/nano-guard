@@ -1,6 +1,6 @@
 # mini-guard
 
-Ultra-lightweight (<1KB), zero-dependency, frontend-focused RBAC (Role-Based Access Control) utility. Safely decodes JWTs in the browser and matches the user's roles against a centralized feature-to-role configuration map.
+Ultra-lightweight, zero-dependency, frontend-focused RBAC (Role-Based Access Control) utility. Safely decodes JWTs in the browser and matches the user's roles against a centralized feature-to-role configuration map.
 
 [![bundle size](https://img.shields.io/badge/gzipped-~913B-brightgreen)](https://bundlephobia.com/package/mini-guard)
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
@@ -9,7 +9,6 @@ Ultra-lightweight (<1KB), zero-dependency, frontend-focused RBAC (Role-Based Acc
 ## Features
 
 - **Zero dependencies** — uses browser-native `atob()`, no external packages
-- **< 1KB gzipped** — negligible impact on your bundle
 - **ESM-only** — tree-shakeable, works with Vite, Next.js, Webpack 5
 - **Multi-module support** — group permissions by app module or micro-frontend
 - **Multi-environment support** — normalize env-prefixed roles (`dev_admin` → `admin`) via templates

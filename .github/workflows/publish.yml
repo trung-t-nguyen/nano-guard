@@ -20,6 +20,10 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - run: npm --prefix demo/mini-react ci
+      - run: npm --prefix demo/mini-react test
+      - run: npm --prefix demo/mini-angular ci
+      - run: npm --prefix demo/mini-angular test -- --watch=false
       - run: npm publish --dry-run
 
   publish:
